@@ -122,7 +122,7 @@ Kemudian pada bagian ```scripts``` pada package.json tambahkan
 ```
 
 
-# Communication between React + Electron and Mongodb
+# Communication between React + Electron
 
 Electron memiliki fiture bernama IPC yang memungkingkan berkomunikasi antara frontend (react) dan backend (mongodb), dimana electron akan berperan menjadi jembatan antara react dan mongodb. Dapat dibaca pada link berikut [Inter Process Communication](https://www.electronjs.org/docs/latest/tutorial/ipc)
 
@@ -160,20 +160,6 @@ const fetchingProducts = async () => {
 ```
 Kemudian pada electron.js, pada bagian
 ```
-async function handleDelete(id){
-  try{
-    const res = await instance.delete(`/${id}`, {
-      params:{
-        "id": id
-      }})
-      const result = res.data
-      return result;
-  }catch(err){
-    console.error('Error making API request:', err);
-    throw err;
-  }
-}
-
 app.whenReady().then(() => {
   createWindow()
   // ketika react mengeksekusi myAPI getAllProduct,
@@ -195,6 +181,99 @@ Ada 2 cara komunikasi dapat terjalin antara electron.js dan react dapat berlangs
    dengan menggunakan ipMain.handle() dan ipcRender.invoke(). sedangkan ini asinkron
 
 Note: Untuk preload.js, jika menggunakan vite dan tidak dapat mengakses api dari preload.js (error not defined), ubahlah ekstensi preload.js menjadi preload.mjs. hal ini disebabkan oleh package.json bawaan vite yang hanya menerima Es Module saja.
+
+# Bridging the Gap
+Agar aplikasi berjalan dengan baik, Electron yang akan melakukan komunikasi dengan backend dan kemudian electron akan mengirim data hasil fetching menuju react untuk di render.
+Misal terdapat sebuah endpoint berikut, pada mongodb script:
+```
+app.get('/api/products', async (req, res) => {
+  const database = client.db('react-product');
+  const collection = database.collection('products');
+
+  try {
+    const result = await collection.find({}).toArray();
+    res.json(result);
+  } catch (error) {
+    console.error('Error reading data from MongoDB', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+```
+Pada main.js electron dapat membuat sebuah fungsi untuk melakukan fetching data dengan axios seperti berikut:
+```
+async function getData() {
+  try {
+    const res = await instance.get()
+    const result = res.data
+   
+    return result;
+  }catch(err){
+    console.error('Error making API request:', err);
+    throw err;
+  }
+}
+```
+Kemduian buat sebuah fungsi untuk menghandle fetching data
+```
+async function handleGetData() {
+  try {
+    const result = await getData()
+    return result
+  } catch (err) {
+    console.error('Error making API request:', err);
+    // Optionally send an error message back to the renderer process
+    throw err
+  }
+}
+```
+Kemudian pada saat app ready handle proses handleGetData seperti berikut:
+```
+app.whenReady().then(() => {
+  createWindow()
+  ipcMain.handle('get-all-product', handleGetData)
+  
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+```
+Sebeneranya kodingan diatas dapat dibuat menjadi ringkas seperti berikut:
+```
+ipcMain.handle('get-all-product', async () => {
+    try {
+    const result =  await instance.get()
+    const result = res.data
+   
+    return result;
+    } catch (err) {
+      console.error('Error making API request:', err);
+      // Optionally send an error message back to the renderer process
+      throw err
+    }
+  } )
+```
+Hanya saja agar lebiah mudah saya pisahkan tiap prosesnya.
+Tahap selanjutnya tinggal menghandle fungsi diatas lewat prealod.js dan mengaksesnya melalui react.js
+```
+// pada prealod.js
+contextBridge.exposeInMainWorld('myAPI', {
+    getAllProduct: () => ipcRenderer.invoke('get-all-product'),
+});
+
+// pada react
+  const fetchingProducts = async () => {
+    try {
+      let data = await window.myAPI.getAllProduct();
+      setProduct(data);
+    } catch (err) {
+      console.error("Error Fetching Data ", err);
+      alert(`${err}`);
+    }
+  };
+// selanjutnya tinggal merender product-nya
+```
 
 
 
