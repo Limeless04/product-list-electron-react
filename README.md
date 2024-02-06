@@ -3,11 +3,17 @@
 Untuk mengintegrasikan electron dengan react, dapat mengikuti intruksi yang disediakan pada dokumentasi electron js [https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app].
 Tapi terdapat beberapah hal yang harus dirubah jika menggunakan Vite dikarenakan electron js menggunakan common js module, dan vite sudah tidak mendukung common js module seperti yang tertulis di artikel berikut [https://vitejs.dev/guide/troubleshooting]
 
+Tapi sebelum masuk ke kodingan ada beberapa library yang akan ditambahkan diantaranya:
+1. axios untuk mengakses backend
+2. dotenv untuk mengakses environment variabel
+
 Ubah semua import pada electron js menggunakan cara ES module seperti berikut:
 ```
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
+import 'dotenv/config'
 import { fileURLToPath } from 'url';
+import axios from 'axios';
 
 import 'dotenv/config'
 import axios from 'axios';
@@ -80,4 +86,39 @@ Struktur folder yang dibuat menjadi seperti berikut:
   // berisikan kodingan react
 .env
 ```
+
+Kemudian untuk dapat menjalankan electron.js
+pada .env tambahkan perintah berikut
+```
+// endpoint yang akan diakses oleh electron untuk membuka react
+ELECTRON_START_URL=http://localhost:5173
+```
+
+Setelah menambahkan variabel env start url, kemudian tinggal mengubah package.json agar electron js dapat berjalan semestinyua
+```
+{
+  "name": "react-test",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  // tambahkan perintah dibawah ini untuk menunjuk kearah script utama electron.js
+  "main": "electron/main.js",
+   ...
+```
+Kemudian pada bagian ```scripts``` pada package.json tambahkan
+```
+...
+  "scripts": {
+    // untuk menjalankan server backend
+    "start:mongodb": "nodemon mongodb/index.js",
+    // untuk menjalankan electron app
+    "start:electron": "electron .",
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+..
+```
+
 
