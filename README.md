@@ -1,7 +1,7 @@
 # How to integrate Electron + React (Vite) + Mongodb
 
-Untuk mengintegrasikan electron dengan react, dapat mengikuti intruksi yang disediakan pada dokumentasi electron js [https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app].
-Tapi terdapat beberapah hal yang harus dirubah jika menggunakan Vite dikarenakan electron js menggunakan common js module, dan vite sudah tidak mendukung common js module seperti yang tertulis di artikel berikut [https://vitejs.dev/guide/troubleshooting]
+Untuk mengintegrasikan electron dengan react, dapat mengikuti intruksi yang disediakan pada dokumentasi [electron js](https://www.electronjs.org/docs/latest/tutorial/tutorial-first-app).
+Tapi terdapat beberapah hal yang harus dirubah jika menggunakan Vite dikarenakan electron js menggunakan common js module, dan vite sudah tidak mendukung common js module seperti yang tertulis di artikel berikut [Troubleshooting Vite CJS](https://vitejs.dev/guide/troubleshooting)
 
 Tapi sebelum masuk ke kodingan ada beberapa library yang akan ditambahkan diantaranya:
 1. axios untuk mengakses backend
@@ -53,7 +53,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   createWindow()
-  
+  // Akan berisi fungsi untuk menghandle interaksi react - electron
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
@@ -120,5 +120,81 @@ Kemudian pada bagian ```scripts``` pada package.json tambahkan
   },
 ..
 ```
+
+
+# Communication between React + Electron and Mongodb
+
+Electron memiliki fiture bernama IPC yang memungkingkan berkomunikasi antara frontend (react) dan backend (mongodb), dimana electron akan berperan menjadi jembatan antara react dan mongodb. Dapat dibaca pada link berikut [Inter Process Communication](https://www.electronjs.org/docs/latest/tutorial/ipc)
+
+Pertama pada preload.js yang telah dibuat tambahkan perintah berikut, yang akan berperan sebagai API yang dapat diakses melalui instance dari object window oleh react
+```
+import { contextBridge, ipcRenderer } from 'electron';
+// contextBridge akan menjadi penghubungung antara react dan electron
+// dimana react dapat mengakses fungsi yang dideklarasikan pada contextBridge
+// 'myAPI' adalah nama dari API contextBridge ini
+contextBridge.exposeInMainWorld('myAPI', {
+    // method yang dideklarasikan disini akan terekspos dan dapat diakses oleh react dan electron.js
+    getById: (id) => ipcRenderer.invoke('get-by-id', id),
+    submitData: (data) => ipcRenderer.invoke('submit-data', data),
+    getAllProduct: () => ipcRenderer.invoke('get-all-product'),
+    deleteProduct: (id) => ipcRenderer.invoke("delete-product", id)
+
+});
+```
+Untuk memahami lebih lanjut tentang preload.js dapat membacanya disini [Using Prelaod.js](https://www.electronjs.org/docs/latest/tutorial/tutorial-preload)
+
+Setelah mendeklarasikan method pada preload.js, method tadi dapat diakses melalui react seperti berikut
+```
+const fetchingProducts = async () => {
+    try {
+      // window adalah browser object modal
+      // myAPI adalah nama dari api yang dibuat pada preload.js
+      // getAllproduct adalah nama method yang dapat dipanggil pada react
+      let data = await window.myAPI.getAllProduct();
+      setProduct(data);
+    } catch (err) {
+      console.error("Error Fetching Data ", err);
+      alert(`${err}`);
+    }
+  };
+```
+Kemudian pada electron.js, pada bagian
+```
+async function handleDelete(id){
+  try{
+    const res = await instance.delete(`/${id}`, {
+      params:{
+        "id": id
+      }})
+      const result = res.data
+      return result;
+  }catch(err){
+    console.error('Error making API request:', err);
+    throw err;
+  }
+}
+
+app.whenReady().then(() => {
+  createWindow()
+  // ketika react mengeksekusi myAPI getAllProduct,
+  // fungsi dibawah inilah yang akan menghandle perintah tersebut  
+  ipcMain.handle('get-all-product', handleGetData)
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+```
+
+Ada 2 cara komunikasi dapat terjalin antara electron.js dan react dapat berlangsung:
+1. One Way
+   dengan menggunakan ipcMain.on() dan ipcRender.send(). cara ini merupakan cara sinkronus
+3. Two Way
+   dengan menggunakan ipMain.handle() dan ipcRender.invoke(). sedangkan ini asinkron
+
+Note: Untuk preload.js, jika menggunakan vite dan tidak dapat mengakses api dari preload.js (error not defined), ubahlah ekstensi preload.js menjadi preload.mjs. hal ini disebabkan oleh package.json bawaan vite yang hanya menerima Es Module saja.
+
 
 
