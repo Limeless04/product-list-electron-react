@@ -275,6 +275,23 @@ contextBridge.exposeInMainWorld('myAPI', {
   };
 // selanjutnya tinggal merender product-nya
 ```
+# Running The App
+Untuk menjalankan aplikasinya, Berikut langkah-langkahnya:
+1. Jalankan dulu server backendnya dulu dengan perintah ``` npm run start:mongodb ```
+2. Jalankan react melalui vite dengan ``` npm run dev ```
+3. Jalankan electron app dengan perintah ``` npm run start:electron ```
+
+Berikut tampilan dari Electron + React + Mongodb
+Tampilan Utama
+![image](https://github.com/Limeless04/product-list-electron-react/assets/45208538/47c6913e-7178-4614-b56d-512703f57d60)
+Tampilan Login page
+![image](https://github.com/Limeless04/product-list-electron-react/assets/45208538/c0eba740-89cd-4d82-a01a-0b560bee60aa)
+Tampilan Detail Page
+![image](https://github.com/Limeless04/product-list-electron-react/assets/45208538/15651146-9207-41bc-9f7a-79116fd473ab)
+Tampilan Tambah Product
+![image](https://github.com/Limeless04/product-list-electron-react/assets/45208538/6fa64971-d231-4039-9f63-fce1974bf5d3)
+![image](https://github.com/Limeless04/product-list-electron-react/assets/45208538/56656a8e-dad4-4acd-9a2f-a9584f3d55eb)
+
 
 
 
