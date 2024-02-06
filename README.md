@@ -181,6 +181,7 @@ Ada 2 cara komunikasi dapat terjalin antara electron.js dan react dapat berlangs
    dengan menggunakan ipMain.handle() dan ipcRender.invoke(). sedangkan ini asinkron
 
 Note: Untuk preload.js, jika menggunakan vite dan tidak dapat mengakses api dari preload.js (error not defined), ubahlah ekstensi preload.js menjadi preload.mjs. hal ini disebabkan oleh package.json bawaan vite yang hanya menerima Es Module saja.
+Note: Perlu diingat bahwa api pada preload hanya dapat diakses melalui electron app, api tersebut tidak dapat diakses melalui browser
 
 # Bridging the Gap
 Agar aplikasi berjalan dengan baik, Electron yang akan melakukan komunikasi dengan backend dan kemudian electron akan mengirim data hasil fetching menuju react untuk di render.
