@@ -33,7 +33,7 @@ function createWindow() {
   window.webContents.openDevTools({ mode: 'detach' });
 }
 
-const mongoApp = new Realm.App({ id: "application-0-sbetp" });
+const mongoApp = new Realm.App({ id: process.env.APP_ID });
 
 async function loginApiKey(apiKey) {
   // Create an API Key credential
@@ -46,7 +46,7 @@ async function loginApiKey(apiKey) {
   return user;
 }
 
-const user = await loginApiKey("GnadhVrJEYzf1OFjxAvJz1iNSUH1tPxvLgudNO6cwskvJ3veRUZb9LabP0nxo3GA")
+const user = await loginApiKey(process.env.ATLAS_API_KEY)
 const client = mongoApp.currentUser.mongoClient("mongodb-atlas")
 const products = client.db('react-product').collection('products');
 
