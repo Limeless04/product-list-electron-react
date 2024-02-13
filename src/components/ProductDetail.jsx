@@ -4,7 +4,6 @@ import { useParams, Link } from "react-router-dom";
 export default function ProductDetail() {
   const { productId } = useParams();
   const [productDetail, setProductDetail] = useState();
-  console.log(productDetail)
   const getDetail = async () => {
     try {
       let data = await window.myAPI.getById(productId);

@@ -4,13 +4,17 @@
   "version": "0.0.0",
   "type": "module",
   "main": "electron/main.js",
+  "author":"Muhammad Nur Alim",
+  "description":"Electron + React For Show Production List",
   "scripts": {
-    "start:mongodb": "nodemon mongodb/index.js",
     "start:electron": "electron .",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "make": "electron-forge make",
+    "start": "electron-forge start",
+    "package": "electron-forge package"
   },
   "dependencies": {
     "axios": "^1.6.7",
@@ -18,6 +22,7 @@
     "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.18.2",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.3",
@@ -26,10 +31,16 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.3",
-    "realm": "^12.6.0",
+    "realm-web": "^2.0.0",
     "sort-by": "^1.2.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.2.0",
+    "@electron-forge/maker-deb": "^7.2.0",
+    "@electron-forge/maker-rpm": "^7.2.0",
+    "@electron-forge/maker-squirrel": "^7.2.0",
+    "@electron-forge/maker-zip": "^7.2.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.2.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",

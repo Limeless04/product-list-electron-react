@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../hooks/AuthProvider";
+import { useAuth } from "./hooks/AuthProvider";
 import { Navigate, Link } from "react-router-dom";
 
 function App() {
@@ -20,8 +20,7 @@ function App() {
     if (confirm("Are you Sure ? ") == true){
       try {
         await window.myAPI.deleteProduct(productId);
-        // After successful deletion, fetch the updated list of products
-        fetchingProducts();
+        fetchingProducts()
       } catch (err) {
         console.error("Error Deleting Product ", err);
         alert(`${err}`);

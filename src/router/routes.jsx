@@ -1,9 +1,9 @@
 // routes.js
 import { Routes, Route } from 'react-router-dom';
-import Login from '@/pages/Login';
-import Home from '@/pages/App';
-import ProductDetail from '../pages/ProductDetail';
-import ProductPage from '../pages/ProductPage';
+import Login from '../components/Login';
+import Home from '../App';
+import ProductDetail from '../components/ProductDetail';
+import ProductPage from '../components/ProductPage';
 
 const AppRoutes = () => {
   return (
